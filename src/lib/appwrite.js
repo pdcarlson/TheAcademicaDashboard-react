@@ -5,6 +5,7 @@ const VITE_APPWRITE_ENDPOINT = import.meta.env.VITE_APPWRITE_ENDPOINT;
 const VITE_APPWRITE_PROJECT_ID = import.meta.env.VITE_APPWRITE_PROJECT_ID;
 export const VITE_APPWRITE_DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
 export const VITE_COURSES_COLLECTION_ID = import.meta.env.VITE_COURSES_COLLECTION_ID;
+export const VITE_ASSIGNMENTS_COLLECTION_ID = import.meta.env.VITE_ASSIGNMENTS_COLLECTION_ID;
 
 
 const client = new Client()

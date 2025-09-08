@@ -5,6 +5,7 @@ import MainLayout from "./components/layout/MainLayout";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import CoursesPage from "./pages/CoursesPage";
+import CourseDetailPage from "./pages/CourseDetailPage";
 
 function App() {
   return (
@@ -28,6 +29,16 @@ function App() {
               <ProtectedRoute>
                 <MainLayout>
                   <CoursesPage />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/courses/:courseId"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <CourseDetailPage />
                 </MainLayout>
               </ProtectedRoute>
             }

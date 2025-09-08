@@ -1,8 +1,15 @@
 import { Client, Account, Databases } from "appwrite";
 
+// configuration
+const VITE_APPWRITE_ENDPOINT = import.meta.env.VITE_APPWRITE_ENDPOINT;
+const VITE_APPWRITE_PROJECT_ID = import.meta.env.VITE_APPWRITE_PROJECT_ID;
+export const VITE_APPWRITE_DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
+export const VITE_COURSES_COLLECTION_ID = import.meta.env.VITE_COURSES_COLLECTION_ID;
+
+
 const client = new Client()
-    .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT)
-    .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID);
+    .setEndpoint(VITE_APPWRITE_ENDPOINT)
+    .setProject(VITE_APPWRITE_PROJECT_ID);
 
 const account = new Account(client);
 const databases = new Databases(client);

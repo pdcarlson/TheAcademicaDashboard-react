@@ -2,25 +2,30 @@ import { useState } from "react";
 import { createAssignment } from "../lib/assignments";
 import { ID } from "appwrite";
 import { useAuth } from "../contexts/AuthContext";
+import DateTimePicker from "./DateTimePicker"; // import the new component
 
 const AddAssignmentForm = ({ courseId, onClose, onAssignmentAdded }) => {
-  const { user } = useAuth(); // get the authenticated user
+  const { user } = useAuth();
   const [title, setTitle] = useState("");
   const [type, setType] = useState("Homework");
-  const [dueDate, setDueDate] = useState("");
+  const [dueDate, setDueDate] = useState(null); // single state for date and time
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!dueDate) {
+        alert("please select a due date.");
+        return;
+    }
     setIsSubmitting(true);
     try {
       const assignmentData = {
         assignmentId: ID.unique(),
         courseId: courseId, 
-        userId: user.$id, // add the user's id to the document data
+        userId: user.$id,
         title,
         type,
-        dueDate,
+        dueDate: dueDate.toISOString(), // convert date object to iso string
         status: "Not Started",
         estimatedTime: 0,
         actualTimeSpent: 0,
@@ -79,19 +84,9 @@ const AddAssignmentForm = ({ courseId, onClose, onAssignmentAdded }) => {
         </select>
       </div>
 
-      {/* due date */}
+      {/* new date time picker */}
       <div className="mb-6">
-        <label htmlFor="dueDate" className="mb-2 block text-sm font-medium text-muted-foreground">
-          Due Date
-        </label>
-        <input
-          type="datetime-local"
-          id="dueDate"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-          className="w-full rounded-md border border-muted-foreground/50 bg-background p-2 text-foreground"
-          required
-        />
+        <DateTimePicker value={dueDate} onChange={setDueDate} />
       </div>
       
       <button

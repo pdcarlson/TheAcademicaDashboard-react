@@ -2,7 +2,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { Link } from "react-router-dom";
 
 const Sidebar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, isLoggingOut } = useAuth();
 
   return (
     <aside className="flex w-64 flex-col bg-card p-6">
@@ -37,9 +37,10 @@ const Sidebar = () => {
         )}
         <button
           onClick={logout}
-          className="w-full rounded-md bg-primary py-2 font-semibold text-primary-foreground"
+          disabled={isLoggingOut}
+          className="w-full rounded-md bg-primary py-2 font-semibold text-primary-foreground disabled:opacity-50"
         >
-          Logout
+          {isLoggingOut ? "Logging out..." : "Logout"}
         </button>
       </div>
     </aside>

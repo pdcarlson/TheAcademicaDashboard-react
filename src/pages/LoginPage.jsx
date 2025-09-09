@@ -1,19 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
-  const { signup, login } = useAuth();
+  const { user, signup, login } = useAuth();
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoginView, setIsLoginView] = useState(true);
+  const [isLoading, setIsLoading] = useState(false); // loading state for button
+
+  // redirect if user is already logged in
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isLoginView) {
-      await login(email, password);
-    } else {
-      await signup(email, password, name);
+    setIsLoading(true);
+    try {
+      if (isLoginView) {
+        await login(email, password);
+      } else {
+        await signup(email, password, name);
+      }
+    } catch (error) {
+      // errors are logged in the context, can add alerts here if needed
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -76,9 +94,10 @@ const LoginPage = () => {
           </div>
           <button
             type="submit"
-            className="w-full rounded-md bg-primary py-2 font-semibold text-primary-foreground"
+            disabled={isLoading}
+            className="w-full rounded-md bg-primary py-2 font-semibold text-primary-foreground disabled:opacity-50"
           >
-            {isLoginView ? "Login" : "Sign Up"}
+            {isLoading ? "Processing..." : (isLoginView ? "Login" : "Sign Up")}
           </button>
         </form>
         <p className="mt-4 text-center text-sm">

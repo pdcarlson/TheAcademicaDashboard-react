@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false); // new state for logout
 
   useEffect(() => {
     // a function to check for a logged in user session
@@ -36,16 +37,20 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("failed to login:", error);
       // here you would probably want to show a toast notification
+      throw error; // re-throw error to be caught in the component
     }
   };
 
   const logout = async () => {
+    setIsLoggingOut(true);
     try {
       await account.deleteSession("current");
       setUser(null);
       navigate("/login");
     } catch (error) {
       console.error("failed to logout:", error);
+    } finally {
+        setIsLoggingOut(false);
     }
   };
 
@@ -56,12 +61,14 @@ export const AuthProvider = ({ children }) => {
       await login(email, password);
     } catch (error) {
       console.error("failed to sign up:", error);
+      throw error; // re-throw error to be caught in the component
     }
   };
 
   const contextData = {
     user,
     isLoading,
+    isLoggingOut, // export new state
     login,
     logout,
     signup,

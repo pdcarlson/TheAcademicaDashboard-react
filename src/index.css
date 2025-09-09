@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
+@import "react-day-picker/dist/style.css";
 
 @import "tailwindcss";
 
@@ -15,5 +16,17 @@
   body {
     @apply bg-background text-foreground;
     font-family: "DM Sans", sans-serif;
+  }
+
+  /* styles for react-day-picker */
+  :root {
+    --rdp-cell-size: 40px;
+    --rdp-accent-color: #90BFF9; /* lighter blue for better contrast */
+    --rdp-background-color: #161b22;
+    --rdp-accent-color-dark: #90BFF9; /* lighter blue for better contrast */
+    --rdp-background-color-dark: #161b22;
+    --rdp-color: #e6edf3;
+    --rdp-caption-color: #8b949e;
+    --rdp-nav-color: #8b949e;
   }
 }

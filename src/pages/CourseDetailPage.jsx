@@ -4,13 +4,15 @@ import { getCourse } from "../lib/courses";
 import { getAssignmentsForCourse } from "../lib/assignments";
 import Modal from "../components/Modal";
 import AddAssignmentForm from "../components/AddAssignmentForm";
+import { useTimer } from "../contexts/TimerContext"; // import the timer hook
 
 const CourseDetailPage = () => {
-  const { courseId } = useParams(); // get course id from url
+  const { courseId } = useParams();
   const [course, setCourse] = useState(null);
   const [assignments, setAssignments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { startTimer, isActive } = useTimer(); // get timer functions
 
   useEffect(() => {
     const fetchCourseData = async () => {
@@ -67,9 +69,18 @@ const CourseDetailPage = () => {
                 <h3 className="font-bold">{assignment.title}</h3>
                 <p className="text-sm text-muted-foreground">{assignment.type}</p>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Due: {new Date(assignment.dueDate).toLocaleString()}
-              </p>
+              <div className="flex items-center gap-4">
+                <p className="text-sm text-muted-foreground">
+                    Due: {new Date(assignment.dueDate).toLocaleString()}
+                </p>
+                <button 
+                    onClick={() => startTimer(assignment)}
+                    disabled={isActive}
+                    className="rounded-md bg-primary/20 px-3 py-1 text-sm font-semibold text-primary disabled:opacity-50"
+                >
+                    Focus
+                </button>
+              </div>
             </div>
           ))
         ) : (

@@ -1,6 +1,37 @@
 import { databases, VITE_APPWRITE_DATABASE_ID, VITE_ASSIGNMENTS_COLLECTION_ID } from "../lib/appwrite";
 import { ID, Query, Permission, Role } from "appwrite";
 
+// function to update the time spent on an assignment
+export const updateAssignmentTime = async (assignmentId, newTimeSpent) => {
+    try {
+        const response = await databases.updateDocument(
+            VITE_APPWRITE_DATABASE_ID,
+            VITE_ASSIGNMENTS_COLLECTION_ID,
+            assignmentId,
+            { actualTimeSpent: newTimeSpent }
+        );
+        return response;
+    } catch (error) {
+        console.error("failed to update assignment time:", error);
+    }
+};
+
+
+// get all assignments for a specific user
+export const getAllAssignments = async (userId) => {
+    try {
+        const response = await databases.listDocuments(
+            VITE_APPWRITE_DATABASE_ID,
+            VITE_ASSIGNMENTS_COLLECTION_ID,
+            [Query.equal("userId", userId)]
+        );
+        return response.documents;
+    } catch (error) {
+        console.error("failed to fetch all assignments:", error);
+        return [];
+    }
+};
+
 // get all assignments for a specific course
 export const getAssignmentsForCourse = async (courseId) => {
     try {

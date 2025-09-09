@@ -1,6 +1,21 @@
 import { databases, VITE_APPWRITE_DATABASE_ID, VITE_ASSIGNMENTS_COLLECTION_ID } from "../lib/appwrite";
 import { ID, Query, Permission, Role } from "appwrite";
 
+// generic function to update any field in an assignment
+export const updateAssignment = async (assignmentId, data) => {
+    try {
+        const response = await databases.updateDocument(
+            VITE_APPWRITE_DATABASE_ID,
+            VITE_ASSIGNMENTS_COLLECTION_ID,
+            assignmentId,
+            data
+        );
+        return response;
+    } catch (error) {
+        console.error("failed to update assignment:", error);
+    }
+};
+
 // function to update the time spent on an assignment
 export const updateAssignmentTime = async (assignmentId, newTimeSpent) => {
     try {
@@ -15,7 +30,6 @@ export const updateAssignmentTime = async (assignmentId, newTimeSpent) => {
         console.error("failed to update assignment time:", error);
     }
 };
-
 
 // get all assignments for a specific user
 export const getAllAssignments = async (userId) => {
@@ -50,7 +64,6 @@ export const getAssignmentsForCourse = async (courseId) => {
 // create a new assignment document
 export const createAssignment = async (assignmentData) => {
     try {
-        // define permissions for this specific document
         const permissions = [
             Permission.read(Role.user(assignmentData.userId)),
             Permission.update(Role.user(assignmentData.userId)),
@@ -62,7 +75,7 @@ export const createAssignment = async (assignmentData) => {
             VITE_ASSIGNMENTS_COLLECTION_ID,
             ID.unique(),
             assignmentData,
-            permissions // pass the permissions array here
+            permissions
         );
         return response;
     } catch (error) {

@@ -1,44 +1,66 @@
-import { useState } from "react";
-import { createAssignment } from "../lib/assignments";
+import { useState, useEffect } from "react";
+import { createAssignment, updateAssignment } from "../lib/assignments";
 import { ID } from "appwrite";
 import { useAuth } from "../contexts/AuthContext";
-import DateTimePicker from "./DateTimePicker"; // import the new component
+import DateTimePicker from "./DateTimePicker";
 
-const AddAssignmentForm = ({ courseId, onClose, onAssignmentAdded }) => {
+const AddAssignmentForm = ({ courseId, onClose, onAssignmentUpdated, existingAssignment }) => {
   const { user } = useAuth();
   const [title, setTitle] = useState("");
   const [type, setType] = useState("Homework");
-  const [dueDate, setDueDate] = useState(null); // single state for date and time
+  const [status, setStatus] = useState("Not Started");
+  const [dueDate, setDueDate] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isEditMode = !!existingAssignment;
+
+  useEffect(() => {
+    if (isEditMode) {
+      setTitle(existingAssignment.title);
+      setType(existingAssignment.type);
+      setStatus(existingAssignment.status);
+      setDueDate(new Date(existingAssignment.dueDate));
+    }
+  }, [existingAssignment, isEditMode]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!dueDate) {
-        alert("please select a due date.");
+        alert("Please select a due date.");
         return;
     }
     setIsSubmitting(true);
     try {
-      const assignmentData = {
-        assignmentId: ID.unique(),
-        courseId: courseId, 
-        userId: user.$id,
-        title,
-        type,
-        dueDate: dueDate.toISOString(), // convert date object to iso string
-        status: "Not Started",
-        estimatedTime: 0,
-        actualTimeSpent: 0,
-        gradeReceived: null,
-        maxGrade: null,
-      };
-      const newAssignment = await createAssignment(assignmentData);
-      if (newAssignment) {
-        onAssignmentAdded(newAssignment);
-        onClose();
+      if (isEditMode) {
+        // logic for updating an existing assignment
+        const updatedData = { title, type, status, dueDate: dueDate.toISOString() };
+        const updatedAssignment = await updateAssignment(existingAssignment.$id, updatedData);
+        if (updatedAssignment) {
+          onAssignmentUpdated(updatedAssignment);
+        }
+      } else {
+        // logic for creating a new assignment
+        const assignmentData = {
+          assignmentId: ID.unique(),
+          courseId: courseId, 
+          userId: user.$id,
+          title,
+          type,
+          dueDate: dueDate.toISOString(),
+          status,
+          estimatedTime: 0,
+          actualTimeSpent: 0,
+          gradeReceived: null,
+          maxGrade: null,
+        };
+        const newAssignment = await createAssignment(assignmentData);
+        if (newAssignment) {
+          onAssignmentUpdated(newAssignment);
+        }
       }
+      onClose();
     } catch (error) {
-        console.error("error submitting assignment form", error);
+        console.error("Error submitting assignment form", error);
     } finally {
         setIsSubmitting(false);
     }
@@ -47,10 +69,9 @@ const AddAssignmentForm = ({ courseId, onClose, onAssignmentAdded }) => {
   return (
     <form onSubmit={handleSubmit}>
       <h2 className="mb-6 text-center text-2xl font-bold text-foreground">
-        Add New Assignment
+        {isEditMode ? 'Edit Assignment' : 'Add New Assignment'}
       </h2>
       
-      {/* title */}
       <div className="mb-4">
         <label htmlFor="title" className="mb-2 block text-sm font-medium text-muted-foreground">
           Title
@@ -65,26 +86,41 @@ const AddAssignmentForm = ({ courseId, onClose, onAssignmentAdded }) => {
         />
       </div>
 
-      {/* type */}
-      <div className="mb-4">
-        <label htmlFor="type" className="mb-2 block text-sm font-medium text-muted-foreground">
-          Type
-        </label>
-        <select
-          id="type"
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-          className="w-full rounded-md border border-muted-foreground/50 bg-background p-2 text-foreground"
-        >
-          <option>Homework</option>
-          <option>Project</option>
-          <option>Quiz</option>
-          <option>Exam</option>
-          <option>Lab</option>
-        </select>
+      <div className="mb-4 flex gap-4">
+        <div className="flex-1">
+            <label htmlFor="type" className="mb-2 block text-sm font-medium text-muted-foreground">
+            Type
+            </label>
+            <select
+            id="type"
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            className="w-full rounded-md border border-muted-foreground/50 bg-background p-2 text-foreground"
+            >
+            <option>Homework</option>
+            <option>Project</option>
+            <option>Quiz</option>
+            <option>Exam</option>
+            <option>Lab</option>
+            </select>
+        </div>
+        <div className="flex-1">
+            <label htmlFor="status" className="mb-2 block text-sm font-medium text-muted-foreground">
+            Status
+            </label>
+            <select
+            id="status"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="w-full rounded-md border border-muted-foreground/50 bg-background p-2 text-foreground"
+            >
+            <option>Not Started</option>
+            <option>In Progress</option>
+            <option>Completed</option>
+            </select>
+        </div>
       </div>
 
-      {/* new date time picker */}
       <div className="mb-6">
         <DateTimePicker value={dueDate} onChange={setDueDate} />
       </div>
@@ -94,7 +130,7 @@ const AddAssignmentForm = ({ courseId, onClose, onAssignmentAdded }) => {
         disabled={isSubmitting}
         className="w-full rounded-md bg-primary py-2 font-semibold text-primary-foreground disabled:opacity-50"
       >
-        {isSubmitting ? "Adding..." : "Add Assignment"}
+        {isSubmitting ? "Saving..." : "Save Changes"}
       </button>
     </form>
   );

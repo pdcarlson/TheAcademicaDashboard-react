@@ -19,11 +19,13 @@ const DashboardPage = () => {
     const fetchDashboardData = async () => {
       if (user) {
         setIsLoading(true);
+        // fetch courses and assignments in parallel
         const [coursesData, assignmentsData] = await Promise.all([
           getCourses(user.$id),
           getAllAssignments(user.$id),
         ]);
 
+        // create a quick lookup map for course names
         const coursesMap = coursesData.reduce((acc, course) => {
           acc[course.$id] = course.courseName;
           return acc;
@@ -38,10 +40,11 @@ const DashboardPage = () => {
 
         setAllAssignments(assignmentsWithCourseNames); // save all assignments for the modal
 
+        // process assignments: filter for upcoming, add course name, sort, and take top 5
         const processedAssignments = assignmentsWithCourseNames
-          .filter(a => new Date(a.dueDate) > now)
-          .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
-          .slice(0, 5);
+          .filter(a => new Date(a.dueDate) > now) // only show tasks that aren't past due
+          .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)) // sort by due date
+          .slice(0, 5); // get the top 5
 
         setUpcomingAssignments(processedAssignments);
         setIsLoading(false);
@@ -97,7 +100,7 @@ const DashboardPage = () => {
                             <p className="font-semibold">{task.title}</p>
                             <p className="text-sm text-primary">{task.courseName}</p>
                             <p className="text-sm text-muted-foreground">
-                            Due: {format(new Date(task.dueDate), "MMM d, yyyy 'at' h:mm a")}
+                              Due: {format(new Date(task.dueDate), "MMM d, yyyy 'at' h:mm a")}
                             </p>
                         </div>
                         <button 
